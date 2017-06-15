@@ -20,9 +20,24 @@ req = requests.get("https://www.youtube.com/playlist?list=PLUY0yjvHWf2EWHtfV0x7F
 data = req.text
 soup = BeautifulSoup(data, "html.parser")
 
+# Prepare variables for loop
+song_links = []
+count = 0
+first = True
+
 for link in soup.find_all('a'):
 	if link.get('href')[:9:1] == "/watch?v=":
-		print link.get('href')
+		if first == True:
+			song_links.append(link.get('href'))
+			first = False
+		elif link.get('href') != song_links[-1]:
+			song_links.append(link.get('href'))
+			count += 1
+# Remove list link
+song_links.pop(0)
+
+for link in song_links:
+	print link
 '''
 # Select browser, url and assert
 driver = webdriver.Chrome()
