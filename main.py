@@ -56,28 +56,37 @@ assert "Convertidor YouTube a mp3" in driver.title
 first = True
 
 for link in song_links:
-	if first == True:
-		win_handle = driver.current_window_handle
-		textinput = driver.find_element_by_id("youtube-url")
-		textinput.clear()
-		textinput.send_keys(link.split('&')[0])
-		textinput.send_keys(Keys.RETURN)
+	try:
+		if first == True:
+			win_handle = driver.current_window_handle
+			textinput = driver.find_element_by_id("youtube-url")
+			textinput.clear()
+			textinput.send_keys(link.split('&')[0])
+			textinput.send_keys(Keys.RETURN)
 
-		driver.switch_to_window(win_handle)
-		# Second page, click "Descargar" url
-		download_link = driver.find_element_by_link_text("Descargar").click()
+			driver.switch_to_window(win_handle)
+			# Second page, click "Descargar" url
+			download_link = driver.find_element_by_link_text("Descargar").click()
 
-		first = False
-	else:
-		textinput = driver.find_element_by_id("youtube-url")
-		textinput.clear()
-		textinput.send_keys(link.split('&')[0])
-		textinput.send_keys(Keys.RETURN)
+			first = False
+	# Second page, click "Descargar" url
+		else:
+			
+			textinput = driver.find_element_by_id("youtube-url")
+			textinput.clear()
+			textinput.send_keys(link.split('&')[0])
+			textinput.send_keys(Keys.RETURN)
 
-		#driver.switch_to_window(win_handle)
-		time.sleep(1)
-		# Second page, click "Descargar" url
-		download_link = driver.find_element_by_link_text("Descargar").click()
+			#driver.switch_to_window(win_handle)
+			time.sleep(2)
+			try:
+				download_link = driver.find_element_by_link_text("Descargar").click()
+			except Exception as e:
+				print e
+				pass
+	except Exception as e:
+		print e
+		pass
 
 	time.sleep(1)
 
