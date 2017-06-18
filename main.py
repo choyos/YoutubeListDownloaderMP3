@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# Other typical inputs
+# Typical imports
 import time
 import re
 import sys
@@ -53,41 +53,55 @@ assert "Convertidor YouTube a mp3" in driver.title
 # Get current handle to avoid pop-ups
 
 # Make magic
-first = True
+not_downloaded = []
 
 for link in song_links:
 	try:
-		if first == True:
-			win_handle = driver.current_window_handle
-			textinput = driver.find_element_by_id("youtube-url")
-			textinput.clear()
-			textinput.send_keys(link.split('&')[0])
-			textinput.send_keys(Keys.RETURN)
+		textinput = driver.find_element_by_id("youtube-url")
+		textinput.clear()
+		textinput.send_keys(link.split('&')[0])
+		textinput.send_keys(Keys.RETURN)
 
-			driver.switch_to_window(win_handle)
-			# Second page, click "Descargar" url
-			download_link = driver.find_element_by_link_text("Descargar").click()
+		time.sleep(2)
+		
+		download_link = driver.find_element_by_link_text("Descargar").click()
 
-			first = False
-	# Second page, click "Descargar" url
-		else:
-			
-			textinput = driver.find_element_by_id("youtube-url")
-			textinput.clear()
-			textinput.send_keys(link.split('&')[0])
-			textinput.send_keys(Keys.RETURN)
-
-			#driver.switch_to_window(win_handle)
-			time.sleep(2)
-			try:
-				download_link = driver.find_element_by_link_text("Descargar").click()
-			except Exception as e:
-				print e
-				pass
 	except Exception as e:
-		print e
-		pass
+		not_downloaded.append(link)
+		driver.refresh()
 
 	time.sleep(1)
+
+not_not_downloaded = []
+
+if len(not_downloaded) > 0:
+	print "Hubo un problema y algunas no se descargaron."
+	print "Vamos a intentar volver a descargarlas de nuevo"
+	for link in not_downloaded:
+		try:
+			textinput = driver.find_element_by_id("youtube-url")
+			textinput.clear()
+			textinput.send_keys(link.split('&')[0])
+			textinput.send_keys(Keys.RETURN)
+
+			time.sleep(2)
+			
+			download_link = driver.find_element_by_link_text("Descargar").click()
+
+		except Exception as e:
+			not_not_downloaded.append(link)
+			driver.refresh()
+
+		time.sleep(1)
+
+if len(not_not_downloaded) > 0:
+	print "No se han podido descargar las siguientes canciones: "
+	for link in not_not_downloaded:
+		# Get request to youtube list
+		req = requests.get("https://"+link)
+		data = req.text
+		soup = BeautifulSoup(data, "html.parser")
+
+		print link + ' -- ' + soup.find(id='eow-title').string.strip()
 
 driver.close()
